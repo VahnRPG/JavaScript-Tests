@@ -16,7 +16,7 @@ class Planet {
 		this.atmosphere_border = 0;
 		this.atmosphere_color = null;
 		
-		if (inPercent(30) || true) {
+		if (inPercent(30)) {
 			console.log("Atmosphere");
 			this.has_atmosphere = true;
 			this.atmosphere = surface_gen.generate(this.width, this.height, palette_size);

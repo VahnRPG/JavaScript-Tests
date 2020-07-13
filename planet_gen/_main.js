@@ -25,7 +25,7 @@ function keyPressed() {
 		noLoop();
 	}
 	else if (keyCode === 80) {
-		saveCanvas(canvas, "planet-" + tile_width + "x" + tile_height + "-" + seed, "png");
+		saveCanvas(canvas, "planet-" + planet_size + "-" + seed, "png");
 	}
 }
 
