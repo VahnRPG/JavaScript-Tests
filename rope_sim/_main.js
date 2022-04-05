@@ -2,36 +2,39 @@ let canvas = null;
 let gravity = 1.5;
 const numIterations = 20;
 let vec_down = null;
+let old_mouse_pos = null;
 
 let points = [];
 let sticks = [];
 
 function setup() {
+	function getIndex(x, y) {
+		return y * numPoints.x + x;
+	}
+	
 	vec_down = createVector(0, 1);
 	
-	let display_size = 200 * 4;
+	const numPoints = createVector(16, 8);
+	for(let y=0; y < numPoints.y; y++) {
+		for(let x=0; x < numPoints.x; x++) {
+			let locked = y == 0 && x % 5 == 0;
+			let position = createVector(x * 50 + 15, y * 50 + 15);
+			points.push(new Point(position, locked, 15));
+		}
+	}
 	
-	let pointA = new Point(display_size - 50, 50, true);
-	let pointB = new Point(display_size / 2, 100, false);
-	let pointC = new Point(display_size / 8, 150, false);
-	let pointD = new Point(display_size / 4, 150, false);
-	let pointE = new Point(display_size - 500, 100, true);
-	points.push(pointA);
-	points.push(pointB);
-	points.push(pointC);
-	points.push(pointD);
-	points.push(pointE);
+	for(let y=0; y < numPoints.y; y++) {
+		for(let x=0; x < numPoints.x; x++) {
+			if (x < numPoints.x - 1) {
+				sticks.push(new Stick(points[getIndex(x, y)], points[getIndex(x + 1, y)]));
+			}
+			if (y < numPoints.y - 1) {
+				sticks.push(new Stick(points[getIndex(x, y)], points[getIndex(x, y + 1)]));
+			}
+		}
+	}
 	
-	let stickA = new Stick(pointA, pointB);
-	let stickB = new Stick(pointB, pointC);
-	let stickC = new Stick(pointC, pointD);
-	let stickD = new Stick(pointD, pointE);
-	sticks.push(stickA);
-	sticks.push(stickB);
-	sticks.push(stickC);
-	sticks.push(stickD);
-	
-	canvas = createCanvas(display_size, display_size);
+	canvas = createCanvas(800, 800);
 	background(75);
 	frameRate(30);
 }
@@ -49,15 +52,33 @@ function keyPressed() {
 	}
 }
 
+function mousePressed() {
+	old_mouse_pos = createVector(mouseX, mouseY);
+}
+
+function mouseDragged() {
+	const mouse_pos = createVector(mouseX, mouseY);
+	
+	cutStick(old_mouse_pos, mouse_pos);
+	
+	old_mouse_pos = mouse_pos;
+}
+
 function update() {
 	const delta = (deltaTime / 50);
 	
 	for (point of points) {
-		if (!point.locked) {
-			const positionBeforeUpdate = point.position.copy();
-			point.position.add(p5.Vector.sub(point.position, point.prevPosition));
-			point.position.add(p5.Vector.mult(vec_down, gravity * delta * delta));
-			point.prevPosition = positionBeforeUpdate.copy();
+		if (point.dead || point.locked) {
+			continue;
+		}
+		
+		const positionBeforeUpdate = point.position.copy();
+		point.position.add(p5.Vector.sub(point.position, point.prevPosition));
+		point.position.add(p5.Vector.mult(vec_down, gravity * delta * delta));
+		point.prevPosition = positionBeforeUpdate.copy();
+		
+		if (point.position.y > height * 2.0) {
+			point.dead = true;
 		}
 	}
 	
@@ -97,11 +118,21 @@ function draw() {
 	}
 }
 
-const generate = () => {
-	console.log("Starting!");
-	loop();
-	background(75);
-	
-	console.log("Stopping!");
-	noLoop();
+function cutStick(start, end) {
+	for (let i = sticks.length - 1; i >= 0; i--) {
+		if (LineSegmentsIntersect(start, end, sticks[i].pointA.position, sticks[i].pointB.position)) {
+			sticks[i].dead = true;
+		}
+	}
+}
+
+function LineSegmentsIntersect(a1, a2, b1, b2) {
+	const d = (b2.x - b1.x) * (a1.y - a2.y) - (a1.x - a2.x) * (b2.y - b1.y);
+	if (d == 0) {
+		return false;
+	}
+	const t = ((b1.y - b2.y) * (a1.x - b1.x) + (b2.x - b1.x) * (a1.y - b1.y)) / d;
+	const u = ((a1.y - a2.y) * (a1.x - b1.x) + (a2.x - a1.x) * (a1.y - b1.y)) / d;
+
+	return t >= 0 && t <= 1 && u >= 0 && u <= 1;
 }
