@@ -8,31 +8,8 @@ let points = [];
 let sticks = [];
 
 function setup() {
-	function getIndex(x, y) {
-		return y * numPoints.x + x;
-	}
-	
 	vec_down = createVector(0, 1);
-	
-	const numPoints = createVector(16, 8);
-	for(let y=0; y < numPoints.y; y++) {
-		for(let x=0; x < numPoints.x; x++) {
-			let locked = y == 0 && x % 5 == 0;
-			let position = createVector(x * 50 + 15, y * 50 + 15);
-			points.push(new Point(position, locked, 15));
-		}
-	}
-	
-	for(let y=0; y < numPoints.y; y++) {
-		for(let x=0; x < numPoints.x; x++) {
-			if (x < numPoints.x - 1) {
-				sticks.push(new Stick(points[getIndex(x, y)], points[getIndex(x + 1, y)]));
-			}
-			if (y < numPoints.y - 1) {
-				sticks.push(new Stick(points[getIndex(x, y)], points[getIndex(x, y + 1)]));
-			}
-		}
-	}
+	init((3 * 5) + 1, 8);
 	
 	canvas = createCanvas(800, 800);
 	background(75);
@@ -41,7 +18,7 @@ function setup() {
 
 function keyPressed() {
 	if (keyCode === ENTER) {
-		//generate();
+		init((3 * 5) + 1, 8);
 	}
 	else if (keyCode === ESCAPE) {
 		console.log("Stopping!");
@@ -115,6 +92,33 @@ function draw() {
 	
 	for (stick of sticks) {
 		stick.draw();
+	}
+}
+
+function init(size_x, size_y) {
+	function getIndex(x, y) {
+		return y * size_x + x;
+	}
+	
+	points = [];
+	for(let y=0; y < size_y; y++) {
+		for(let x=0; x < size_x; x++) {
+			let locked = y == 0 && x % 5 == 0;
+			let position = createVector(x * 50 + 15, y * 50 + 15);
+			points.push(new Point(position, locked, 15));
+		}
+	}
+	
+	sticks = [];
+	for(let y=0; y < size_y; y++) {
+		for(let x=0; x < size_x; x++) {
+			if (x < size_x - 1) {
+				sticks.push(new Stick(points[getIndex(x, y)], points[getIndex(x + 1, y)]));
+			}
+			if (y < size_y - 1) {
+				sticks.push(new Stick(points[getIndex(x, y)], points[getIndex(x, y + 1)]));
+			}
+		}
 	}
 }
 
