@@ -47,11 +47,11 @@ function setup() {
 }
 
 function keyPressed() {
-	if (keyCode === ENTER) {
-	}
-	else if (keyCode === ESCAPE) {
+	if (keyCode === ESCAPE) {
 		console.log("Stopping!");
 		noLoop();
+	}
+	else if (keyCode === ENTER) {
 	}
 	else if (keyCode === 80) {
 		saveCanvas(canvas, "swatch-" + cells_x + "x" + cells_y, "png");
