@@ -9,13 +9,10 @@ let tile_height = 0;
 const tile_width = 382;
 const tile_height = 238;
 //*/
-const color_points = 50;
 const colorize_start = true;
 const distinct_colors = !true;
 
-let seed = new Date().getTime() / 1000;
-seed = 1594225083;
-
+let seed = 0;
 let canvas = null;
 let maze = null;
 
@@ -25,8 +22,15 @@ function setup() {
 	canvas = createCanvas(canvas_width, canvas_height);
 	
 	tile_width = int((canvas_width - border_size) / tile_size);
+	//tile_width = 16;
 	tile_height = int((canvas_height - border_size) / tile_size);
+	//tile_height = 16;
 	
+	seed = int(new Date().getTime() / 1000);
+	//seed = 1594225083;
+	
+	let color_points = 50;
+	color_points = int(random(1, 100));
 	maze = new Maze(tile_width, tile_height, seed, color_points, colorize_start, distinct_colors);
 	background(0, 0, 75);
 }
